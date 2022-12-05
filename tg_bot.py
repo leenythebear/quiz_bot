@@ -1,20 +1,18 @@
 import os
 
+import redis
 import telegram
 from telegram import Bot
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 from dotenv import load_dotenv
 
-# Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger('quiz_bot')
 
 
-# Define a few command handlers. These usually take the two arguments bot and
-# update. Error handlers also receive the raised TelegramError object in error.
 def start(bot, update):
     """Send a message when the command /start is issued."""
     custom_keyboard = [['Новый вопрос'], ['Сдаться'], ['Мой счет']]
@@ -44,9 +42,14 @@ def error(bot, update, error):
 
 def main():
     """Start the bot."""
-    # Create the EventHandler and pass it your bot's token.
     load_dotenv()
-    token = os.getenv('TG_TOKEN')
+    token = os.environ['TG_TOKEN']
+    host = os.environ['DB_HOST']
+    port = os.environ['DB_PORT']
+    password = os.environ['DB_PASSWORD']
+
+    db = redis.Redis(host=host, port=port, password=password, decode_responses=True)
+
     bot = Bot(token)
     updater = Updater(token)
 
