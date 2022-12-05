@@ -1,5 +1,6 @@
 import os
 
+import telegram
 from telegram import Bot
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
@@ -16,7 +17,9 @@ logger = logging.getLogger('quiz_bot')
 # update. Error handlers also receive the raised TelegramError object in error.
 def start(bot, update):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
+    custom_keyboard = [['Новый вопрос'], ['Сдаться'], ['Мой счет']]
+    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
+    update.message.reply_text('Привет, я бот для викторины!', reply_markup=reply_markup)
 
 
 def help(bot, update):
