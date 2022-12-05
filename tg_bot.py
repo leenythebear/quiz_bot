@@ -27,9 +27,14 @@ def help(bot, update):
     update.message.reply_text('Help!')
 
 
-def echo(bot, update):
+def start_game(bot, update):
     """Echo the user message."""
-    update.message.reply_text(update.message.text)
+    if update.message.text == 'Новый вопрос':
+        update.message.reply_text('Играем!')
+    if update.message.text == 'Сдаться':
+        update.message.reply_text('Очень жаль, приходи играть еще!')
+    if update.message.text == 'Мой счет':
+        update.message.reply_text('Твой счет:...')
 
 
 def error(bot, update, error):
