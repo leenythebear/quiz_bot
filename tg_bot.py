@@ -14,27 +14,18 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger('quiz_bot')
 
+QUIZ = range(1)
 
-def start(bot, update):
+
+def start(context, update):
     """Send a message when the command /start is issued."""
     custom_keyboard = [['Новый вопрос'], ['Сдаться'], ['Мой счет']]
     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
-    update.message.reply_text('Привет, я бот для викторины!', reply_markup=reply_markup)
+    update.message.reply_text('Привет, я бот для викторины!',
+                              reply_markup=reply_markup)
+    print(111, context)
+    return QUIZ
 
-
-def help(context, update):
-    """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
-
-
-def start_game(context, update):
-    """Echo the user message."""
-    if update.message.text == 'Новый вопрос':
-        update.message.reply_text('Играем!')
-    if update.message.text == 'Сдаться':
-        update.message.reply_text('Очень жаль, приходи играть еще!')
-    if update.message.text == 'Мой счет':
-        update.message.reply_text('Твой счет:...')
 
 
 def get_new_question(context, update):
@@ -66,12 +57,21 @@ def main():
     dp = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start_game))
-    dp.add_handler(CommandHandler("help", help))
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler("start", start)],
+        states={
+            QUIZ: [MessageHandler(Filters.regex('Новый вопрос'),
+                                  get_new_question, pass_user_data=True),
+                   MessageHandler(Filters.text,
+                                  check_answer, pass_user_data=True)
+                   ],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)]
+    )
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.regex('Новый вопрос'), get_new_question))
 
+    dp.add_handler(conv_handler)
     # log all errors
     dp.add_error_handler(error)
 
