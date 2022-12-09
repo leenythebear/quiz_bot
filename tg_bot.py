@@ -86,12 +86,15 @@ def main():
         entry_points=[CommandHandler("start", start)],
         states={
             QUIZ: [MessageHandler(Filters.regex('Новый вопрос'),
-                                  get_new_question, pass_user_data=True),
+                                  handle_new_question_request, pass_user_data=True),
+                   MessageHandler(Filters.regex('Сдаться'), capitulate, pass_user_data=True),
                    MessageHandler(Filters.text,
-                                  check_answer, pass_user_data=True)
+                                  handle_solution_attempt,
+                                  pass_user_data=True),
                    ],
         },
-        fallbacks=[CommandHandler("cancel", cancel)]
+        fallbacks=[CommandHandler("cancel", cancel),
+                   ]
     )
 
     # on noncommand i.e message - echo the message on Telegram
