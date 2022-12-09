@@ -4,7 +4,8 @@ from random import choice
 import redis
 import telegram
 from telegram import Bot
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
+    ConversationHandler
 import logging
 from dotenv import load_dotenv
 from main import get_quiz_tasks
@@ -23,7 +24,6 @@ def start(context, update):
     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
     update.message.reply_text('Привет, я бот для викторины!',
                               reply_markup=reply_markup)
-    print(111, context)
     return QUIZ
 
 
