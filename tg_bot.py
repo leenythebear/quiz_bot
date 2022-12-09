@@ -56,9 +56,13 @@ def capitulate(context, update, user_data):
     return QUIZ
 
 
-def error(bot, update, error):
-    """Log Errors caused by Updates."""
-    logger.warning('Update "%s" caused error "%s"', update, error)
+def cancel(context, update):
+    update.message.reply_text("Goodbye!")
+
+
+# def error(bot, update, error):
+#     """Log Errors caused by Updates."""
+#     logger.warning('Update "%s" caused error "%s"', update, error)
 
 
 def main():
