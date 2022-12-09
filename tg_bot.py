@@ -29,8 +29,31 @@ def start(context, update):
 
 def handle_new_question_request(context, update, user_data):
     quiz_tasks = get_quiz_tasks()
-    question = choice(list(quiz_tasks.keys()))
-    update.message.reply_text(question)
+    question, answer = choice(list(quiz_tasks.items()))
+    user_data["question"] = question
+    update.message.reply_text(user_data["question"])
+    user_data["answer"] = answer
+    return QUIZ
+
+
+def handle_solution_attempt(context, update, user_data):
+    user_answer = update.message.text
+    answer = user_data["answer"].split(".")
+    if user_answer == answer[0]:
+        message = 'Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»'
+        update.message.reply_text(message)
+        return QUIZ
+    else:
+        message = 'Неправильно… Попробуешь ещё раз?'
+        update.message.reply_text(message)
+        return QUIZ
+
+
+def capitulate(context, update, user_data):
+    answer = user_data["answer"]
+    print(answer)
+    update.message.reply_text(answer)
+    return QUIZ
 
 
 def error(bot, update, error):
