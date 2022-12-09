@@ -27,9 +27,7 @@ def start(context, update):
     return QUIZ
 
 
-
-def get_new_question(context, update):
-    user_id = update.message.from_user.id
+def handle_new_question_request(context, update, user_data):
     quiz_tasks = get_quiz_tasks()
     question = choice(list(quiz_tasks.keys()))
     update.message.reply_text(question)
