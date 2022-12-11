@@ -73,10 +73,7 @@ def main():
     """Start the bot."""
     load_dotenv()
 
-    db = redis.Redis(host=host, port=port, password=password, decode_responses=True)
-
-    bot = Bot(token)
-    updater = Updater(token)
+    updater = Updater(telegram_token)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
