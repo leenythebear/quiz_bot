@@ -8,6 +8,8 @@ import logging
 from dotenv import load_dotenv
 from main import get_quiz_tasks
 
+from settings import redis_password, redis_port, redis_host, telegram_token
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
