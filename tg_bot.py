@@ -17,6 +17,8 @@ logger = logging.getLogger('quiz_bot')
 
 QUIZ = range(1)
 
+DB = redis.Redis(host=redis_host, port=redis_port, password=redis_password, decode_responses=True)
+
 
 def start(context, update):
     """Send a message when the command /start is issued."""
