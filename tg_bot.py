@@ -1,9 +1,7 @@
-import os
 from random import choice
 
 import redis
 import telegram
-from telegram import Bot
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
     ConversationHandler
 import logging
