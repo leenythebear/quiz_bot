@@ -29,19 +29,21 @@ def start(context, update):
     return QUIZ
 
 
-def handle_new_question_request(context, update, user_data):
+def handle_new_question_request(context, update):
+    user_id = update.effective_user.id
     quiz_tasks = get_quiz_tasks()
     question, answer = choice(list(quiz_tasks.items()))
-    user_data["question"] = question
-    update.message.reply_text(user_data["question"])
-    user_data["answer"] = answer
+    update.message.reply_text(question)
+    DB.set(f'{user_id}_question', question)
+    DB.set(f'{user_id}_answer', answer)
     return QUIZ
 
 
-def handle_solution_attempt(context, update, user_data):
+def handle_solution_attempt(context, update):
     user_answer = update.message.text
-    answer = user_data["answer"].split(".")
-    if user_answer == answer[0]:
+    user_id = update.effective_user.id
+    answer = DB.get(f'{user_id}_answer')
+    if user_answer == answer:
         message = 'Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»'
         update.message.reply_text(message)
         return QUIZ
@@ -51,9 +53,9 @@ def handle_solution_attempt(context, update, user_data):
         return QUIZ
 
 
-def capitulate(context, update, user_data):
-    answer = user_data["answer"]
-    print(answer)
+def capitulate(context, update):
+    user_id = update.effective_user.id
+    answer = DB.get(f'{user_id}_answer')
     update.message.reply_text(answer)
     return QUIZ
 
@@ -70,10 +72,6 @@ def cancel(context, update):
 def main():
     """Start the bot."""
     load_dotenv()
-    token = os.environ['TG_TOKEN']
-    host = os.environ['DB_HOST']
-    port = os.environ['DB_PORT']
-    password = os.environ['DB_PASSWORD']
 
     db = redis.Redis(host=host, port=port, password=password, decode_responses=True)
 
@@ -88,11 +86,10 @@ def main():
         entry_points=[CommandHandler("start", start)],
         states={
             QUIZ: [MessageHandler(Filters.regex('Новый вопрос'),
-                                  handle_new_question_request, pass_user_data=True),
-                   MessageHandler(Filters.regex('Сдаться'), capitulate, pass_user_data=True),
+                                  handle_new_question_request),
+                   MessageHandler(Filters.regex('Сдаться'), capitulate),
                    MessageHandler(Filters.text,
-                                  handle_solution_attempt,
-                                  pass_user_data=True),
+                                  handle_solution_attempt),
                    ],
         },
         fallbacks=[CommandHandler("cancel", cancel),
