@@ -51,12 +51,12 @@ def handle_solution_attempt(context, update):
     user_answer = update.message.text
     user_id = update.effective_user.id
     answer = DB.get(f"{user_id}_answer")
-    if user_answer == answer:
+    if user_answer.lower() in answer:
         message = "Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»"
         update.message.reply_text(message)
         return QUIZ
     else:
-        message = "Неправильно… Попробуешь ещё раз?"
+        message = "Неправильно… Попробуешь ещё раз? Для следующего вопроса нажми «Новый вопрос»"
         update.message.reply_text(message)
         return QUIZ
 
