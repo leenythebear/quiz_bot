@@ -41,10 +41,11 @@ def send_message(event, vk_api, message):
     DB.set(f'{user_id}_answer', answer)
     vk_api.messages.send(user_id=user_id, message=question, random_id=random.randint(1, 1000))
 
-#
-# def capitulate(event, vk_api, answer):
-#     user_id = event.user_id
-#     vk_api.messages.send(user_id=user_id, message=answer, random_id=random.randint(1, 1000))
+
+def capitulate(event, vk_api):
+    user_id = event.user_id
+    answer = DB.get(f'{user_id}_answer')
+    vk_api.messages.send(user_id=user_id, message=answer, random_id=random.randint(1, 1000))
 
 
 if __name__ == "__main__":
