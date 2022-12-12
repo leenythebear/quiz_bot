@@ -62,6 +62,6 @@ if __name__ == "__main__":
             if event.text == 'Новый вопрос':
                 send_message(event, vk_api, question)
             elif event.text == 'Сдаться':
-                send_message(event, vk_api, answer)
+                capitulate(event, vk_api)
             else:
                 start(event, vk_api)
