@@ -31,9 +31,7 @@ def start(event, vk_api):
     vk_api.messages.send(user_id=user_id, message=text, keyboard=keyboard.get_keyboard(), random_id=random.randint(1, 1000))
 
 
-def send_message(event, vk_api, message):
-    # quiz_tasks = get_quiz_tasks()
-    # question, answer = random.choice(list(quiz_tasks.items()))
+def send_question(event, vk_api):
     user_id = event.user_id
     quiz_tasks = get_quiz_tasks()
     question, answer = random.choice(list(quiz_tasks.items()))
@@ -56,11 +54,8 @@ if __name__ == "__main__":
     longpoll = VkLongPoll(vk_session)
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            quiz_tasks = get_quiz_tasks()
-            question, answer = random.choice(list(quiz_tasks.items()))
-
             if event.text == 'Новый вопрос':
-                send_message(event, vk_api, question)
+                send_question(event, vk_api)
             elif event.text == 'Сдаться':
                 capitulate(event, vk_api)
             else:
