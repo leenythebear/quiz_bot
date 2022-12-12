@@ -36,6 +36,25 @@ def send_question(event, vk_api):
     )
 
 
+def check_answer(event, vk_api):
+    user_id = event.user_id
+    answer = DB.get(f"{user_id}_answer")
+    user_answer = event.text
+    if user_answer.lower() in answer:
+        message = "Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»"
+        vk_api.messages.send(
+            user_id=user_id, message=message, random_id=random.randint(1, 1000)
+        )
+    else:
+        message = "Неправильно… Попробуешь ещё раз? Для следующего вопроса нажми «Новый вопрос»"
+        vk_api.messages.send(
+            user_id=user_id, message=message, random_id=random.randint(1, 1000)
+        )
+
+
+
+
+
 def capitulate(event, vk_api):
     user_id = event.user_id
     answer = DB.get(f"{user_id}_answer")
@@ -57,4 +76,4 @@ if __name__ == "__main__":
             elif event.text == "Сдаться":
                 capitulate(event, vk_api)
             else:
-                start(event, vk_api)
+                check_answer(event, vk_api)
