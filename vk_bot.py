@@ -18,31 +18,21 @@ DB = redis.Redis(
 )
 
 
-def start(event, vk_api):
+def send_question(event, vk_api):
     keyboard = VkKeyboard(one_time=False)
     keyboard.add_button("Новый вопрос", color=VkKeyboardColor.SECONDARY)
     keyboard.add_button("Сдаться", color=VkKeyboardColor.SECONDARY)
 
     keyboard.add_line()
     keyboard.add_button("Мой счёт", color=VkKeyboardColor.SECONDARY)
-    user_id = event.user_id
-    text = "Привет, я бот для викторины!"
-    vk_api.messages.send(
-        user_id=user_id,
-        message=text,
-        keyboard=keyboard.get_keyboard(),
-        random_id=random.randint(1, 1000),
-    )
 
-
-def send_question(event, vk_api):
     user_id = event.user_id
     quiz_tasks = get_quiz_tasks()
     question, answer = random.choice(list(quiz_tasks.items()))
     DB.set(f"{user_id}_question", question)
     DB.set(f"{user_id}_answer", answer)
     vk_api.messages.send(
-        user_id=user_id, message=question, random_id=random.randint(1, 1000)
+        user_id=user_id, message=question, keyboard=keyboard.get_keyboard(), random_id=random.randint(1, 1000)
     )
 
 
