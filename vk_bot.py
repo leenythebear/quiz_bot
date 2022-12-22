@@ -8,7 +8,6 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.longpoll import VkEventType, VkLongPoll
 
 from create_tasks import get_quiz_tasks
-from settings import redis_host, redis_password, redis_port, questions_path, vk_token
 
 
 def send_question(event, vk_api, database, quiz_tasks):
@@ -55,6 +54,14 @@ def capitulate(event, vk_api, database):
 
 if __name__ == "__main__":
     load_dotenv()
+
+    redis_host = os.environ['DB_HOST']
+    redis_port = os.environ['DB_PORT']
+    redis_password = os.environ['DB_PASSWORD']
+
+    vk_token = os.environ['VK_TOKEN']
+
+    questions_path = os.environ['QUESTION_PATH']
 
     vk_session = vk.VkApi(token=vk_token)
     vk_api = vk_session.get_api()

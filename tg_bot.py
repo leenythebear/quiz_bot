@@ -1,15 +1,15 @@
 import functools
 import logging
+import os
 from random import choice
 
 import redis
 import telegram
 from dotenv import load_dotenv
-from telegram.ext import (CommandHandler, ConversationHandler, Filters,
+from telegram.ext import (CommandHandler, Filters,
                           MessageHandler, Updater)
 
 from create_tasks import get_quiz_tasks
-from settings import redis_host, redis_password, redis_port, telegram_token, questions_path
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -66,6 +66,14 @@ def error(update, error):
 def main():
     """Start the bot."""
     load_dotenv()
+
+    redis_host = os.environ['DB_HOST']
+    redis_port = os.environ['DB_PORT']
+    redis_password = os.environ['DB_PASSWORD']
+
+    telegram_token = os.environ['TG_TOKEN']
+
+    questions_path = os.environ['QUESTION_PATH']
 
     updater = Updater(telegram_token)
 
