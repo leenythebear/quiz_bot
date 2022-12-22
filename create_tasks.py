@@ -18,10 +18,3 @@ def get_quiz_tasks(path):
 
         quiz_tasks = dict(zip(questions, answers))
         return quiz_tasks
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Quiz-bot для Vk и Telegram")
-    parser.add_argument("-p", "--questions_path", help="Указать свой путь к файлу с вопросами", default='quiz-questions/1vs1200.txt')
-    args = parser.parse_args()
-    get_quiz_tasks(args.questions_path)
