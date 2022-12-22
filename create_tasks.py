@@ -6,15 +6,11 @@ def get_quiz_tasks(path):
         path, "r", encoding="KOI8-R"
     ) as questions_file:
         quiz_questions = questions_file.read()
-        # print(quiz_questions)
         paragraphs = quiz_questions.split("Вопрос ")[1:]
-        # print(paragraphs[0])
         questions = []
         answers = []
         for paragraph in paragraphs:
-            # print(111, paragraph)
             question = paragraph.split("\n\n")[0].split(":\n")[1]
-            print(question)
             answer = paragraph.split("\n\n")[1].split("Ответ:\n")[1]
 
             questions.append(question)
