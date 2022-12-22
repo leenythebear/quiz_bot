@@ -1,4 +1,6 @@
+import functools
 import logging
+import os
 from random import choice
 
 import redis
@@ -8,7 +10,7 @@ from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, Updater)
 
 from create_tasks import get_quiz_tasks
-from settings import redis_host, redis_password, redis_port, telegram_token
+from settings import redis_host, redis_password, redis_port, telegram_token, questions_path
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -18,13 +20,6 @@ logging.basicConfig(
 logger = logging.getLogger("quiz_bot")
 
 QUIZ = range(1)
-
-DB = redis.Redis(
-    host=redis_host,
-    port=redis_port,
-    password=redis_password,
-    decode_responses=True,
-)
 
 
 def start(context, update):
@@ -37,20 +32,19 @@ def start(context, update):
     return QUIZ
 
 
-def handle_new_question_request(context, update):
+def handle_new_question_request(context, update, database, quiz_tasks):
     user_id = update.effective_user.id
-    quiz_tasks = get_quiz_tasks()
     question, answer = choice(list(quiz_tasks.items()))
     update.message.reply_text(question)
-    DB.set(f"{user_id}_question", question)
-    DB.set(f"{user_id}_answer", answer)
+    database.set(f"{user_id}_question", question)
+    database.set(f"{user_id}_answer", answer)
     return QUIZ
 
 
-def handle_solution_attempt(context, update):
+def handle_solution_attempt(context, update, database):
     user_answer = update.message.text
     user_id = update.effective_user.id
-    answer = DB.get(f"{user_id}_answer")
+    answer = database.get(f"{user_id}_answer")
     if user_answer.lower() in answer.lower():
         message = "Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»"
         update.message.reply_text(message)
@@ -61,9 +55,9 @@ def handle_solution_attempt(context, update):
         return QUIZ
 
 
-def capitulate(context, update):
+def capitulate(context, update, database):
     user_id = update.effective_user.id
-    answer = DB.get(f"{user_id}_answer")
+    answer = database.get(f"{user_id}_answer")
     update.message.reply_text(answer)
     return QUIZ
 
@@ -85,15 +79,19 @@ def main():
 
     dp = updater.dispatcher
 
+    database = redis.Redis(host=redis_host, port=redis_port, password=redis_password,
+                     decode_responses=True)
+    quiz_tasks = get_quiz_tasks(questions_path)
+
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
             QUIZ: [
                 MessageHandler(
-                    Filters.regex("Новый вопрос"), handle_new_question_request
+                    Filters.regex("Новый вопрос"), functools.partial(handle_new_question_request, database=database, quiz_tasks=quiz_tasks)
                 ),
-                MessageHandler(Filters.regex("Сдаться"), capitulate),
-                MessageHandler(Filters.text, handle_solution_attempt),
+                MessageHandler(Filters.regex("Сдаться"), functools.partial(capitulate, database=database)),
+                MessageHandler(Filters.text, functools.partial(handle_solution_attempt, database=database))
             ],
         },
         fallbacks=[
