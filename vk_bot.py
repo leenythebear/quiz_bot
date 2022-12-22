@@ -24,7 +24,10 @@ def send_question(event, vk_api, database, quiz_tasks):
     database.set(f"{user_id}_question", question)
     database.set(f"{user_id}_answer", answer)
     vk_api.messages.send(
-        user_id=user_id, message=question, keyboard=keyboard.get_keyboard(), random_id=random.randint(1, 1000)
+        user_id=user_id,
+        message=question,
+        keyboard=keyboard.get_keyboard(),
+        random_id=random.randint(1, 1000),
     )
 
 
@@ -55,22 +58,25 @@ def capitulate(event, vk_api, database):
 if __name__ == "__main__":
     load_dotenv()
 
-    redis_host = os.environ['DB_HOST']
-    redis_port = os.environ['DB_PORT']
-    redis_password = os.environ['DB_PASSWORD']
+    redis_host = os.environ["DB_HOST"]
+    redis_port = os.environ["DB_PORT"]
+    redis_password = os.environ["DB_PASSWORD"]
 
-    vk_token = os.environ['VK_TOKEN']
+    vk_token = os.environ["VK_TOKEN"]
 
-    questions_path = os.environ['QUESTION_PATH']
+    questions_path = os.environ["QUESTION_PATH"]
 
     vk_session = vk.VkApi(token=vk_token)
     vk_api = vk_session.get_api()
     longpoll = VkLongPoll(vk_session)
 
     quiz_tasks = get_quiz_tasks(questions_path)
-    database = redis.Redis(host=redis_host, port=redis_port,
-                           password=redis_password,
-                           decode_responses=True)
+    database = redis.Redis(
+        host=redis_host,
+        port=redis_port,
+        password=redis_password,
+        decode_responses=True,
+    )
 
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:

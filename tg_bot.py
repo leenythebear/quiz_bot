@@ -6,11 +6,9 @@ from random import choice
 import redis
 import telegram
 from dotenv import load_dotenv
-from telegram.ext import (CommandHandler, Filters,
-                          MessageHandler, Updater)
+from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 
 from create_tasks import get_quiz_tasks
-
 
 logger = logging.getLogger("quiz_bot")
 
@@ -63,13 +61,13 @@ def main():
     """Start the bot."""
     load_dotenv()
 
-    redis_host = os.environ['DB_HOST']
-    redis_port = os.environ['DB_PORT']
-    redis_password = os.environ['DB_PASSWORD']
+    redis_host = os.environ["DB_HOST"]
+    redis_port = os.environ["DB_PORT"]
+    redis_password = os.environ["DB_PASSWORD"]
 
-    telegram_token = os.environ['TG_TOKEN']
+    telegram_token = os.environ["TG_TOKEN"]
 
-    questions_path = os.environ['QUESTION_PATH']
+    questions_path = os.environ["QUESTION_PATH"]
 
     logging.basicConfig(
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -80,14 +78,37 @@ def main():
 
     dp = updater.dispatcher
 
-    database = redis.Redis(host=redis_host, port=redis_port, password=redis_password,
-                     decode_responses=True)
+    database = redis.Redis(
+        host=redis_host,
+        port=redis_port,
+        password=redis_password,
+        decode_responses=True,
+    )
     quiz_tasks = get_quiz_tasks(questions_path)
 
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.regex("Новый вопрос"), functools.partial(handle_new_question_request, database=database, quiz_tasks=quiz_tasks)))
-    dp.add_handler(MessageHandler(Filters.regex("Сдаться"), functools.partial(capitulate, database=database)))
-    dp.add_handler(MessageHandler(Filters.text, functools.partial(handle_solution_attempt, database=database)))
+    dp.add_handler(
+        MessageHandler(
+            Filters.regex("Новый вопрос"),
+            functools.partial(
+                handle_new_question_request,
+                database=database,
+                quiz_tasks=quiz_tasks,
+            ),
+        )
+    )
+    dp.add_handler(
+        MessageHandler(
+            Filters.regex("Сдаться"),
+            functools.partial(capitulate, database=database),
+        )
+    )
+    dp.add_handler(
+        MessageHandler(
+            Filters.text,
+            functools.partial(handle_solution_attempt, database=database),
+        )
+    )
     dp.add_handler(CommandHandler("cancel", cancel))
     dp.add_error_handler(get_error)
 

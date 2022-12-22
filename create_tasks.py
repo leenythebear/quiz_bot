@@ -1,7 +1,5 @@
 def get_quiz_tasks(path):
-    with open(
-        path, "r", encoding="KOI8-R"
-    ) as questions_file:
+    with open(path, "r", encoding="KOI8-R") as questions_file:
         quiz_questions = questions_file.read()
         paragraphs = quiz_questions.split("Вопрос ")[1:]
         questions = []
