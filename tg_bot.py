@@ -11,10 +11,6 @@ from telegram.ext import (CommandHandler, Filters,
 
 from create_tasks import get_quiz_tasks
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
-)
 
 logger = logging.getLogger("quiz_bot")
 
@@ -58,7 +54,7 @@ def cancel(context, update):
     update.message.reply_text("Goodbye!")
 
 
-def error(update, error):
+def get_error(update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
 
@@ -75,6 +71,11 @@ def main():
 
     questions_path = os.environ['QUESTION_PATH']
 
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
+
     updater = Updater(telegram_token)
 
     dp = updater.dispatcher
@@ -88,7 +89,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.regex("Сдаться"), functools.partial(capitulate, database=database)))
     dp.add_handler(MessageHandler(Filters.text, functools.partial(handle_solution_attempt, database=database)))
     dp.add_handler(CommandHandler("cancel", cancel))
-    dp.add_error_handler(error)
+    dp.add_error_handler(get_error)
 
     updater.start_polling()
 
