@@ -1,6 +1,5 @@
 import functools
 import logging
-import os
 from random import choice
 
 import redis
@@ -19,8 +18,6 @@ logging.basicConfig(
 
 logger = logging.getLogger("quiz_bot")
 
-QUIZ = range(1)
-
 
 def start(context, update):
     """Send a message when the command /start is issued."""
@@ -29,7 +26,6 @@ def start(context, update):
     update.message.reply_text(
         "Привет, я бот для викторины!", reply_markup=reply_markup
     )
-    return QUIZ
 
 
 def handle_new_question_request(context, update, database, quiz_tasks):
@@ -38,7 +34,6 @@ def handle_new_question_request(context, update, database, quiz_tasks):
     update.message.reply_text(question)
     database.set(f"{user_id}_question", question)
     database.set(f"{user_id}_answer", answer)
-    return QUIZ
 
 
 def handle_solution_attempt(context, update, database):
@@ -48,18 +43,15 @@ def handle_solution_attempt(context, update, database):
     if user_answer.lower() in answer.lower():
         message = "Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»"
         update.message.reply_text(message)
-        return QUIZ
     else:
         message = "Неправильно… Попробуешь ещё раз? Для следующего вопроса нажми «Новый вопрос»"
         update.message.reply_text(message)
-        return QUIZ
 
 
 def capitulate(context, update, database):
     user_id = update.effective_user.id
     answer = database.get(f"{user_id}_answer")
     update.message.reply_text(answer)
-    return QUIZ
 
 
 def cancel(context, update):
@@ -83,23 +75,11 @@ def main():
                      decode_responses=True)
     quiz_tasks = get_quiz_tasks(questions_path)
 
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
-        states={
-            QUIZ: [
-                MessageHandler(
-                    Filters.regex("Новый вопрос"), functools.partial(handle_new_question_request, database=database, quiz_tasks=quiz_tasks)
-                ),
-                MessageHandler(Filters.regex("Сдаться"), functools.partial(capitulate, database=database)),
-                MessageHandler(Filters.text, functools.partial(handle_solution_attempt, database=database))
-            ],
-        },
-        fallbacks=[
-            CommandHandler("cancel", cancel),
-        ],
-    )
-
-    dp.add_handler(conv_handler)
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(Filters.regex("Новый вопрос"), functools.partial(handle_new_question_request, database=database, quiz_tasks=quiz_tasks)))
+    dp.add_handler(MessageHandler(Filters.regex("Сдаться"), functools.partial(capitulate, database=database)))
+    dp.add_handler(MessageHandler(Filters.text, functools.partial(handle_solution_attempt, database=database)))
+    dp.add_handler(CommandHandler("cancel", cancel))
     dp.add_error_handler(error)
 
     updater.start_polling()
