@@ -54,7 +54,7 @@ def check_answer(event, vk_api, database):
 
 def capitulate(event, vk_api, database):
     user_id = event.user_id
-    answer = DB.get(f"{user_id}_answer")
+    answer = database.get(f"{user_id}_answer")
     vk_api.messages.send(
         user_id=user_id, message=answer, random_id=random.randint(1, 1000)
     )
