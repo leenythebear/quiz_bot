@@ -10,13 +10,6 @@ from vk_api.longpoll import VkEventType, VkLongPoll
 from create_tasks import get_quiz_tasks
 from settings import redis_host, redis_password, redis_port, questions_path, vk_token
 
-DB = redis.Redis(
-    host=redis_host,
-    port=redis_port,
-    password=redis_password,
-    decode_responses=True,
-)
-
 
 def send_question(event, vk_api, database, quiz_tasks):
     keyboard = VkKeyboard(one_time=False)
