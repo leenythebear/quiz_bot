@@ -1,6 +1,3 @@
-import argparse
-
-
 def get_quiz_tasks(path):
     with open(
         path, "r", encoding="KOI8-R"
